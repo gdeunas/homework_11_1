@@ -1,7 +1,8 @@
 # from typing import Union
+from typing import Iterator
 
 
-def filter_by_currency(transactions: list, currency: str) -> list:
+def filter_by_currency(transactions_in, currency) -> Iterator:
     """принимает на вход список словарей, представляющих транзакции.
     Функция должна возвращать итератор, который поочередно выдает транзакции,
     где валюта операции соответствует заданной (например, USD).
@@ -22,7 +23,7 @@ def filter_by_currency(transactions: list, currency: str) -> list:
           "description": "Перевод организации",
           "from": "Счет 75106830613657916952",
           "to": "Счет 11776614605963066702"
-      }
+      }, # missed ','
       {
               "id": 142264268,
               "state": "EXECUTED",
@@ -38,10 +39,20 @@ def filter_by_currency(transactions: list, currency: str) -> list:
               "from": "Счет 19708645243227258542",
               "to": "Счет 75651667383060284188"
        }"""
-    return transactions
+    if transactions_in and currency != "":
+        for index, cur in enumerate(transactions_in):
+            if (
+                transactions_in[index]["operationAmount"]["currency"]["name"]
+                == currency
+            ):
+                yield transactions_in[index]
+    elif transactions_in == [{}] and currency == "":
+        raise ValueError("enter transaction and currency")
+    elif currency == "":
+        raise ValueError("enter currency like USD")
 
 
-def transaction_descriptions(transactions: list):
+def transaction_descriptions(transactions_desc):
     """generator. принимает список словарей с транзакциями и возвращает описание каждой операции по очереди.
     descriptions = transaction_descriptions(transactions)
     for _ in range(5):
@@ -51,7 +62,10 @@ def transaction_descriptions(transactions: list):
     Перевод со счета на счет
     Перевод с карты на карту
     Перевод организации"""
-    yield 1
+    while True:
+        if transactions_desc:
+            for index, cur in enumerate(transactions_desc):
+                yield transactions_desc[index]["description"]
 
 
 def card_number_generator(start, stop):
@@ -75,8 +89,16 @@ def card_number_generator(start, stop):
                     prefix += "0"
 
                 prefix += str(n)
-                gen_card = prefix[:4] + ' ' + prefix[4:8] + ' ' + prefix[8:12] + ' ' + prefix[12:]
+                gen_card = (
+                    prefix[:4]
+                    + " "
+                    + prefix[4:8]
+                    + " "
+                    + prefix[8:12]
+                    + " "
+                    + prefix[12:]
+                )
                 yield gen_card
                 n += 1
-    else:
-        return
+    elif start >= stop:
+        raise ValueError("start must be less than stop")
