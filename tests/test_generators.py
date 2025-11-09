@@ -13,9 +13,9 @@ def test_card_number_generator():
 
 
 def test_card_number_generator_lim():
-    card_num_lim = card_number_generator(5, 6)
-    assert next(card_num_lim) == "0000 0000 0000 0005"
-    assert next(card_num_lim) == "0000 0000 0000 0006"
+    card_num_lim = card_number_generator(9999999999999998, 9999999999999999)
+    assert next(card_num_lim) == "9999 9999 9999 9998"
+    assert next(card_num_lim) == "9999 9999 9999 9999"
 
 
 def test_card_number_generator_more_less():

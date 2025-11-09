@@ -66,7 +66,7 @@ def card_number_generator(start, stop):
     0000 0000 0000 0003
     0000 0000 0000 0004
     0000 0000 0000 0005"""
-    if start < stop:
+    if 0 < start < stop:
         while True:
             for card_n in range(start, stop + 1):
                 n = card_n
