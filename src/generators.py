@@ -39,17 +39,31 @@ def filter_by_currency(transactions_in, currency) -> Iterator:
               "from": "Счет 19708645243227258542",
               "to": "Счет 75651667383060284188"
        }"""
-    if transactions_in and currency != "":
+    # try:
+    currency_list = []
+    if transactions_in:
+        for index, cur in enumerate(transactions_in):
+            currency_list.append(
+                transactions_in[index]["operationAmount"]["currency"]["name"]
+            )
+
+    if currency is None or currency == "" or (currency not in currency_list):
+        raise ValueError("enter currency like USD")
+    elif transactions_in == [] or transactions_in is None:
+        raise ValueError("enter transaction")
+    elif (transactions_in == [] or transactions_in is None) and (
+        currency is None or currency == ""
+    ):
+        raise ValueError("enter transaction and currency")
+    elif transactions_in and (currency or currency != ""):
         for index, cur in enumerate(transactions_in):
             if (
                 transactions_in[index]["operationAmount"]["currency"]["name"]
                 == currency
             ):
                 yield transactions_in[index]
-    elif transactions_in == [{}] and currency == "":
-        raise ValueError("enter transaction and currency")
-    elif currency == "":
-        raise ValueError("enter currency like USD")
+    # except TypeError:
+    #     raise ValueError("TypeError: Check list of indices")
 
 
 def transaction_descriptions(transactions_desc):
@@ -83,24 +97,17 @@ def card_number_generator(start, stop):
     0000 0000 0000 0004
     0000 0000 0000 0005"""
     if 0 < start < stop:
-        while True:
-            for card_n in range(start, stop + 1):
-                n = card_n
-                prefix = ""
-                for i in range(16 - len(str(card_n))):
-                    prefix += "0"
+        for card_n in range(start, stop + 1):
+            n = card_n
+            prefix = ""
+            for i in range(16 - len(str(card_n))):
+                prefix += "0"
 
-                prefix += str(n)
-                gen_card = (
-                    prefix[:4]
-                    + " "
-                    + prefix[4:8]
-                    + " "
-                    + prefix[8:12]
-                    + " "
-                    + prefix[12:]
-                )
-                yield gen_card
-                n += 1
+            prefix += str(n)
+            gen_card = (
+                prefix[:4] + " " + prefix[4:8] + " " + prefix[8:12] + " " + prefix[12:]
+            )
+            yield gen_card
+            n += 1
     elif start >= stop:
         raise ValueError("start must be less than stop")

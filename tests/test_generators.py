@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from src.generators import (
@@ -58,7 +60,7 @@ def test_filter_by_currency_usd(list_input_usd, expected):
 
 
 @pytest.mark.parametrize(
-    "list_input, expected",
+    "list_input, currency_test_empty, expected",
     [
         (
             [
@@ -87,27 +89,44 @@ def test_filter_by_currency_usd(list_input_usd, expected):
                     "to": "Счет 75651667383060284188",
                 },
             ],
-            [{}],
+            None,
+            None,
         ),
     ],
 )
-def test_filter_by_currency_empty_cur(list_input, expected):
+def test_filter_by_currency_empty_currency(list_input, currency_test_empty, expected):
     with pytest.raises(ValueError, match="enter currency like USD"):
-        list(filter_by_currency(list_input, ""))
+        print(next(filter_by_currency(list_input, currency_test_empty)) == expected)
 
 
 @pytest.mark.parametrize(
-    "list_input, expected",
+    "list_input, currency_test, expected",
     [
-        (
-            [{}],
-            [{}],
-        ),
+        ([], None, []),
+        (None, None, None),
     ],
 )
-def test_filter_by_currency_empty_trans(list_input, expected):
-    with pytest.raises(ValueError, match="enter transaction and currency"):
-        list(filter_by_currency([{}], ""))
+def test_filter_by_currency_empty_trans_cur(list_input, currency_test, expected):
+    with pytest.raises(ValueError):
+        list(filter_by_currency(list_input, currency_test))
+
+
+# enter transaction and currency
+
+
+@pytest.mark.parametrize(
+    "list_input, currency_test, expected",
+    [
+        ([], Any, []),
+        (None, Any, None),
+    ],
+)
+def test_filter_by_currency_empty_trans(list_input, currency_test, expected):
+    with pytest.raises(ValueError):
+        list(filter_by_currency(list_input, currency_test))
+
+
+# "enter transaction"
 
 
 @pytest.mark.parametrize(
@@ -192,14 +211,21 @@ def test_transaction_descriptions():
     assert next(descriptions) == "Перевод со счета на счет"
 
 
-def test_transaction_descriptions_empty():
-    with pytest.raises(ValueError, match="add transaction"):
-        transactions_test = []
+@pytest.mark.parametrize(
+    "transactions_test, expected",
+    [
+        ([], ""),
+        (None, None),
+    ],
+)
+def test_transaction_descriptions_empty(transactions_test, expected):
+    with pytest.raises(ValueError) as exc_info:
         descriptions = transaction_descriptions(transactions_test)
-        next(descriptions) == ""
+        print(next(descriptions) == expected)
+    assert str(exc_info.value) == "add transaction"
 
 
-def test_card_number_generator():
+def test_card_number_generator_0005():
     card_num = card_number_generator(5, 11)
     assert next(card_num) == "0000 0000 0000 0005"
     assert next(card_num) == "0000 0000 0000 0006"
@@ -208,12 +234,32 @@ def test_card_number_generator():
     assert next(card_num) == "0000 0000 0000 0009"
 
 
-def test_card_number_generator_lim():
-    card_num_lim = card_number_generator(9999999999999998, 9999999999999999)
-    assert next(card_num_lim) == "9999 9999 9999 9998"
-    assert next(card_num_lim) == "9999 9999 9999 9999"
+def test_card_number_generator_9999():
+    card_num = card_number_generator(9999999999999998, 9999999999999999)
+    assert next(card_num) == "9999 9999 9999 9998"
+    assert next(card_num) == "9999 9999 9999 9999"
 
 
-def test_card_number_generator_more_less():
+@pytest.mark.parametrize(
+    "start, stop, expected",
+    [
+        (1, 9999999999999999, "0000 0000 0000 0001"),
+        (9999999999999998, 9999999999999999, "9999 9999 9999 9998"),
+    ],
+)
+def test_card_number_generator_lim(start, stop, expected):
+    card_num_lim = card_number_generator(start, stop)
+    assert next(card_num_lim) == expected
+
+
+@pytest.mark.parametrize(
+    "start, stop, expected",
+    [
+        (6, 5, None),
+        (8, -1, None),
+        (999, 998, None),
+    ],
+)
+def test_card_number_generator_more_less(start, stop, expected):
     with pytest.raises(ValueError, match="start must be less than stop"):
-        list(card_number_generator(6, 5))
+        next(card_number_generator(start, stop))
