@@ -62,10 +62,12 @@ def transaction_descriptions(transactions_desc):
     Перевод со счета на счет
     Перевод с карты на карту
     Перевод организации"""
-    while True:
-        if transactions_desc:
-            for index, cur in enumerate(transactions_desc):
-                yield transactions_desc[index]["description"]
+
+    if transactions_desc:
+        for index, cur in enumerate(transactions_desc):
+            yield transactions_desc[index]["description"]
+    else:
+        raise ValueError("add transaction")
 
 
 def card_number_generator(start, stop):

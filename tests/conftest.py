@@ -35,7 +35,7 @@ def transactions_test():
     ]
 
 
-def test_transaction_descriptions(transactions_test: list):
+def test_transaction_descriptions2(transactions_test: list):
     if transactions_test != [{}]:
         description = transaction_descriptions(transactions_test)
         assert next(description) == "Перевод организации"

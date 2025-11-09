@@ -192,6 +192,13 @@ def test_transaction_descriptions():
     assert next(descriptions) == "Перевод со счета на счет"
 
 
+def test_transaction_descriptions_empty():
+    with pytest.raises(ValueError, match="add transaction"):
+        transactions_test = []
+        descriptions = transaction_descriptions(transactions_test)
+        next(descriptions) == ""
+
+
 def test_card_number_generator():
     card_num = card_number_generator(5, 11)
     assert next(card_num) == "0000 0000 0000 0005"
