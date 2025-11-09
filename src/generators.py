@@ -83,24 +83,17 @@ def card_number_generator(start, stop):
     0000 0000 0000 0004
     0000 0000 0000 0005"""
     if 0 < start < stop:
-        while True:
-            for card_n in range(start, stop + 1):
-                n = card_n
-                prefix = ""
-                for i in range(16 - len(str(card_n))):
-                    prefix += "0"
+        for card_n in range(start, stop + 1):
+            n = card_n
+            prefix = ""
+            for i in range(16 - len(str(card_n))):
+                prefix += "0"
 
-                prefix += str(n)
-                gen_card = (
-                    prefix[:4]
-                    + " "
-                    + prefix[4:8]
-                    + " "
-                    + prefix[8:12]
-                    + " "
-                    + prefix[12:]
-                )
-                yield gen_card
-                n += 1
+            prefix += str(n)
+            gen_card = (
+                prefix[:4] + " " + prefix[4:8] + " " + prefix[8:12] + " " + prefix[12:]
+            )
+            yield gen_card
+            n += 1
     elif start >= stop:
         raise ValueError("start must be less than stop")
