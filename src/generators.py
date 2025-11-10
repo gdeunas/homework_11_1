@@ -1,0 +1,113 @@
+# from typing import Union
+from typing import Iterator
+
+
+def filter_by_currency(transactions_in, currency) -> Iterator:
+    """принимает на вход список словарей, представляющих транзакции.
+    Функция должна возвращать итератор, который поочередно выдает транзакции,
+    где валюта операции соответствует заданной (например, USD).
+    usd_transactions = filter_by_currency(transactions, "USD")
+    for _ in range(2):
+        print(next(usd_transactions))
+    {
+          "id": 939719570,
+          "state": "EXECUTED",
+          "date": "2018-06-30T02:08:58.425572",
+          "operationAmount": {
+              "amount": "9824.07",
+              "currency": {
+                  "name": "USD",
+                  "code": "USD"
+              }
+          },
+          "description": "Перевод организации",
+          "from": "Счет 75106830613657916952",
+          "to": "Счет 11776614605963066702"
+      }, # missed ','
+      {
+              "id": 142264268,
+              "state": "EXECUTED",
+              "date": "2019-04-04T23:20:05.206878",
+              "operationAmount": {
+                  "amount": "79114.93",
+                  "currency": {
+                      "name": "USD",
+                      "code": "USD"
+                  }
+              },
+              "description": "Перевод со счета на счет",
+              "from": "Счет 19708645243227258542",
+              "to": "Счет 75651667383060284188"
+       }"""
+    # try:
+    currency_list = []
+    if transactions_in:
+        for index, cur in enumerate(transactions_in):
+            currency_list.append(
+                transactions_in[index]["operationAmount"]["currency"]["name"]
+            )
+
+    if currency is None or currency == "" or (currency not in currency_list):
+        raise ValueError("enter currency like USD")
+    elif transactions_in == [] or transactions_in is None:
+        raise ValueError("enter transaction")
+    elif (transactions_in == [] or transactions_in is None) and (
+        currency is None or currency == ""
+    ):
+        raise ValueError("enter transaction and currency")
+    elif transactions_in and (currency or currency != ""):
+        for index, cur in enumerate(transactions_in):
+            if (
+                transactions_in[index]["operationAmount"]["currency"]["name"]
+                == currency
+            ):
+                yield transactions_in[index]
+    # except TypeError:
+    #     raise ValueError("TypeError: Check list of indices")
+
+
+def transaction_descriptions(transactions_desc):
+    """generator. принимает список словарей с транзакциями и возвращает описание каждой операции по очереди.
+    descriptions = transaction_descriptions(transactions)
+    for _ in range(5):
+        print(next(descriptions))
+    Перевод организации
+    Перевод со счета на счет
+    Перевод со счета на счет
+    Перевод с карты на карту
+    Перевод организации"""
+
+    if transactions_desc:
+        for index, cur in enumerate(transactions_desc):
+            yield transactions_desc[index]["description"]
+    else:
+        raise ValueError("add transaction")
+
+
+def card_number_generator(start, stop):
+    """generator. выдает номера банковских карт в формате XXXX XXXX XXXX XXXX, где X
+    — цифра номера карты. Генератор может сгенерировать номера карт в заданном диапазоне от
+    0000 0000 0000 0001 до 9999 9999 9999 9999.
+    Генератор должен принимать начальное и конечное значения для генерации диапазона номеров.
+    for card_number in card_number_generator(1, 5):
+        print(card_number)
+    0000 0000 0000 0001
+    0000 0000 0000 0002
+    0000 0000 0000 0003
+    0000 0000 0000 0004
+    0000 0000 0000 0005"""
+    if 0 < start < stop:
+        for card_n in range(start, stop + 1):
+            n = card_n
+            prefix = ""
+            for i in range(16 - len(str(card_n))):
+                prefix += "0"
+
+            prefix += str(n)
+            gen_card = (
+                prefix[:4] + " " + prefix[4:8] + " " + prefix[8:12] + " " + prefix[12:]
+            )
+            yield gen_card
+            n += 1
+    elif start >= stop:
+        raise ValueError("start must be less than stop")
